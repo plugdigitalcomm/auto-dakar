@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { vehicleInputSchema, vehicleStatusSchema } from "@/lib/validations/vehicle.schema";
 import { PrismaVehicleRepository } from "@/modules/vehicles/infrastructure";
+import { uploadVehicleImages } from "@/lib/upload";
+import { prisma } from "@/lib/prisma";
 
 const repository = new PrismaVehicleRepository();
 
@@ -49,7 +51,10 @@ export async function createVehicleAction(_prev: { error?: string } | undefined,
   const d = parsed.data;
   const slug = `${slugify(d.title)}-${d.city.toLowerCase().replace(/\s+/g, "-")}`;
 
-  const imagesRaw = (raw.imageUrls as string ?? "").split("\n").map((u) => u.trim()).filter(Boolean);
+  // Upload des fichiers vers Cloudinary (s'il y en a), puis fusion avec URLs manuelles
+  const uploadedUrls = await uploadVehicleImages(formData).catch(() => [] as string[]);
+  const manualUrls = (raw.imageUrls as string ?? "").split("\n").map((u) => u.trim()).filter(Boolean);
+  const imagesRaw = [...uploadedUrls, ...manualUrls];
 
   const vehicle = await repository.create({
     slug,
@@ -112,6 +117,11 @@ export async function updateVehicleAction(id: string, _prev: { error?: string } 
 
   const d = parsed.data;
 
+  // Upload nouveaux fichiers + fusion avec URLs manuelles (si fournis, remplace toutes les images)
+  const uploadedUrls = await uploadVehicleImages(formData).catch(() => [] as string[]);
+  const manualUrls = (raw.imageUrls as string ?? "").split("\n").map((u: string) => u.trim()).filter(Boolean);
+  const newImages = [...uploadedUrls, ...manualUrls];
+
   await repository.update(id, {
     title: d.title,
     brandId: d.brandId,
@@ -139,6 +149,16 @@ export async function updateVehicleAction(id: string, _prev: { error?: string } 
     agentId: d.agentId,
     videoUrl: d.videoUrl,
   });
+
+  // Si de nouvelles images ont été fournies, remplace toutes les images existantes
+  if (newImages.length > 0) {
+    await prisma.$transaction([
+      prisma.vehicleImage.deleteMany({ where: { vehicleId: id } }),
+      prisma.vehicleImage.createMany({
+        data: newImages.map((url, i) => ({ url, position: i, vehicleId: id })),
+      }),
+    ]);
+  }
 
   revalidatePath("/admin/vehicules");
   revalidatePath("/catalogue");

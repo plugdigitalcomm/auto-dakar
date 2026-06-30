@@ -155,16 +155,26 @@ export function VehicleForm({ action, brands, agents, vehicle, submitLabel = "En
 
       {/* Images */}
       <Section title="Images">
-        <Field label="URLs des photos (une par ligne)">
+        <Field label="Uploader des photos depuis votre ordinateur">
+          <input
+            type="file"
+            name="imageFiles"
+            multiple
+            accept="image/*"
+            className="w-full text-sm text-neutral-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-gold file:text-brand-black file:font-semibold file:cursor-pointer hover:file:bg-brand-gold-soft cursor-pointer"
+          />
+          <p className="text-xs text-neutral-500 mt-1">Les fichiers sont uploadés sur Cloudinary automatiquement.</p>
+        </Field>
+        <Field label="Ou coller des URLs directement (une par ligne)">
           <textarea
             name="imageUrls"
-            rows={4}
+            rows={3}
             defaultValue={v?.images.sort((a, b) => a.position - b.position).map((i) => i.url).join("\n")}
             className={inputClass}
             placeholder="https://res.cloudinary.com/..."
           />
+          <p className="text-xs text-neutral-500 mt-1">Si des fichiers sont uploadés ET des URLs collées, les deux sont combinés. Pour remplacer toutes les images, fournissez au moins une source.</p>
         </Field>
-        <p className="text-xs text-neutral-500 mt-1">Upload Cloudinary disponible une fois les clés API configurées.</p>
       </Section>
 
       <div className="flex gap-3">
