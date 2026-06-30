@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Manrope } from "next/font/google";
 import "./globals.css";
+import { ServiceWorkerRegister } from "@/components/ui/ServiceWorkerRegister";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,6 +24,15 @@ export const metadata: Metadata = {
   description:
     "AutoDakar, la plateforme premium de vente de voitures neuves et d'occasion au Sénégal.",
   metadataBase: new URL("https://autodakar.sn"),
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "AutoDakar",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 const organizationJsonLd = {
@@ -55,6 +65,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
+        <ServiceWorkerRegister />
         {children}
       </body>
     </html>
