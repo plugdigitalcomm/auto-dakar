@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Brand {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  logoUrl   String?
+  vehicles  Vehicle[]
+  createdAt DateTime  @default(now())
+
+  @@index([slug])
+  @@map("brands")
+}
+
+model Agent {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  logoUrl     String?
+  bannerUrl   String?
+  phone       String
+  whatsapp    String?
+  email       String?
+  address     String?
+  city        String
+  isVerified  Boolean   @default(false)
+  vehicles    Vehicle[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([city])
+  @@map("agents")
+}
+
+enum VehicleCondition {
+  NEUF
+  OCCASION
+}
+
+enum FuelType {
+  ESSENCE
+  DIESEL
+  HYBRIDE
+  ELECTRIQUE
+}
+
+enum TransmissionType {
+  MANUELLE
+  AUTOMATIQUE
+}
+
+enum VehicleCategory {
+  SUV
+  BERLINE
+  PICKUP
+  UTILITAIRE
+  CITADINE
+  COUPE
+  MONOSPACE
+  CABRIOLET
+}
+
+enum VehicleStatus {
+  DISPONIBLE
+  RESERVE
+  VENDU
+  ARCHIVE
+}
+
+model Vehicle {
+  id            String            @id @default(cuid())
+  slug          String            @unique
+  title         String
+  brand         Brand             @relation(fields: [brandId], references: [id])
+  brandId       String
+  model         String
+  year          Int
+  condition     VehicleCondition
+  category      VehicleCategory
+  price         Decimal           @db.Decimal(12, 2)
+  isNegotiable  Boolean           @default(false)
+  mileage       Int               @default(0)
+  fuelType      FuelType
+  transmission  TransmissionType
+  color         String
+  power         Int?
+  engineSize    Float?
+  seats         Int?
+  hasAC         Boolean           @default(false)
+  hasGPS        Boolean           @default(false)
+  hasRearCamera Boolean           @default(false)
+  description   String            @db.Text
+  city          String
+  latitude      Float?
+  longitude     Float?
+  status        VehicleStatus     @default(DISPONIBLE)
+  viewCount     Int               @default(0)
+
+  agent         Agent?            @relation(fields: [agentId], references: [id])
+  agentId       String?
+
+  images        VehicleImage[]
+  videoUrl      String?
+
+  reservations  Reservation[]
+  reviews       Review[]
+  reports       Report[]
+
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([slug])
+  @@index([brandId])
+  @@index([category])
+  @@index([condition])
+  @@index([status])
+  @@index([city])
+  @@index([price])
+  @@map("vehicles")
+}
+
+model VehicleImage {
+  id         String   @id @default(cuid())
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicleId  String
+  url        String
+  position   Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([vehicleId])
+  @@map("vehicle_images")
+}
+
+enum ReservationStatus {
+  NOUVELLE
+  CONTACTEE
+  CONFIRMEE
+  ANNULEE
+}
+
+model Reservation {
+  id            String            @id @default(cuid())
+  vehicle       Vehicle           @relation(fields: [vehicleId], references: [id])
+  vehicleId     String
+  fullName      String
+  phone         String
+  city          String?
+  preferredDate DateTime?
+  message       String?           @db.Text
+  status        ReservationStatus @default(NOUVELLE)
+  adminNote     String?           @db.Text
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([vehicleId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("reservations")
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  vehicle     Vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicleId   String?
+  authorName  String
+  rating      Int
+  comment     String   @db.Text
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([vehicleId])
+  @@index([isPublished])
+  @@map("reviews")
+}
+
+enum ReportReason {
+  PRIX_INCORRECT
+  VEHICULE_VENDU
+  INFOS_FAUSSES
+  SUSPICION_FRAUDE
+  AUTRE
+}
+
+enum ReportStatus {
+  EN_ATTENTE
+  TRAITE
+  REJETE
+}
+
+model Report {
+  id        String       @id @default(cuid())
+  vehicle   Vehicle      @relation(fields: [vehicleId], references: [id])
+  vehicleId String
+  reason    ReportReason
+  details   String?      @db.Text
+  status    ReportStatus @default(EN_ATTENTE)
+  createdAt DateTime     @default(now())
+
+  @@index([vehicleId])
+  @@index([status])
+  @@map("reports")
+}

@@ -1,26 +1,77 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Surfaces */
+  --background: #fafaf8;
+  --foreground: #0a0a0b;
+
+  /* Palette de marque Auto Dakar — noir profond / blanc cassé / or premium */
+  --brand-black: #0a0a0b;
+  --brand-black-soft: #161618;
+  --brand-white: #fafaf8;
+  --brand-gold: #c9a227;
+  --brand-gold-soft: #e2c662;
+
+  /* Échelle de gris neutre */
+  --neutral-50: #fafaf9;
+  --neutral-100: #f2f1ef;
+  --neutral-200: #e3e2de;
+  --neutral-300: #c9c7c1;
+  --neutral-400: #a3a099;
+  --neutral-500: #79766e;
+  --neutral-600: #5a5750;
+  --neutral-700: #423f3a;
+  --neutral-800: #2a2826;
+  --neutral-900: #161514;
+
+  /* États sémantiques */
+  --success: #1f7a4d;
+  --warning: #b8860b;
+  --danger: #b3261e;
+
+  /* Rayons et ombres communs */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-brand-black: var(--brand-black);
+  --color-brand-black-soft: var(--brand-black-soft);
+  --color-brand-white: var(--brand-white);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-gold-soft: var(--brand-gold-soft);
+
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-900: var(--neutral-900);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-manrope);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
