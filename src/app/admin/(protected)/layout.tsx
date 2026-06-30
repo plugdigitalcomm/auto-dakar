@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 export default async function AdminProtectedLayout({
   children,
@@ -12,5 +13,12 @@ export default async function AdminProtectedLayout({
     redirect("/admin/login");
   }
 
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen bg-neutral-950 flex">
+      <AdminSidebar userName={session.user?.name ?? "Admin"} />
+      <main className="flex-1 overflow-auto">
+        {children}
+      </main>
+    </div>
+  );
 }

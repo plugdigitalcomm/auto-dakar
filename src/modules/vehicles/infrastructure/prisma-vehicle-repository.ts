@@ -2,7 +2,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { VehicleSearchFilters, VehicleSearchResult, VehicleWithRelations } from "@/types";
 import { PUBLICLY_VISIBLE_STATUSES } from "../domain/vehicle-rules";
-import type { VehicleRepository } from "../application/vehicle-repository";
+import type { VehicleAdminFilters, VehicleAdminResult, VehicleCreateInput, VehicleRepository } from "../application/vehicle-repository";
 
 const VEHICLE_INCLUDE = {
   brand: true,
@@ -76,5 +76,61 @@ export class PrismaVehicleRepository implements VehicleRepository {
       where: { id },
       data: { viewCount: { increment: 1 } },
     });
+  }
+
+  async findAllForAdmin(filters: VehicleAdminFilters): Promise<VehicleAdminResult> {
+    const page = filters.page ?? 1;
+    const pageSize = filters.pageSize ?? 20;
+    const where: Prisma.VehicleWhereInput = filters.search
+      ? { title: { contains: filters.search, mode: "insensitive" } }
+      : {};
+
+    const [items, total] = await Promise.all([
+      prisma.vehicle.findMany({
+        where,
+        include: VEHICLE_INCLUDE,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.vehicle.count({ where }),
+    ]);
+
+    return { items, total, page, pageSize };
+  }
+
+  async findById(id: string): Promise<VehicleWithRelations | null> {
+    return prisma.vehicle.findUnique({ where: { id }, include: VEHICLE_INCLUDE });
+  }
+
+  async create(data: VehicleCreateInput): Promise<VehicleWithRelations> {
+    const { brandId, agentId, ...rest } = data;
+    return prisma.vehicle.create({
+      data: {
+        ...rest,
+        brand: { connect: { id: brandId } },
+        ...(agentId && { agent: { connect: { id: agentId } } }),
+      },
+      include: VEHICLE_INCLUDE,
+    });
+  }
+
+  async update(id: string, data: Partial<VehicleCreateInput>): Promise<VehicleWithRelations> {
+    const { brandId, agentId, ...rest } = data;
+    return prisma.vehicle.update({
+      where: { id },
+      data: {
+        ...rest,
+        ...(brandId && { brand: { connect: { id: brandId } } }),
+        ...(agentId !== undefined && {
+          agent: agentId ? { connect: { id: agentId } } : { disconnect: true },
+        }),
+      },
+      include: VEHICLE_INCLUDE,
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    await prisma.vehicle.delete({ where: { id } });
   }
 }
