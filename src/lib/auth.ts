@@ -1,11 +1,14 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+import { z } from "zod";
 
-/**
- * Authentification admin uniquement : un seul compte (table Admin), pas de système multi-rôles.
- * La vérification réelle des identifiants (lookup Prisma + bcrypt.compare) sera branchée
- * à l'étape "Dashboard admin", une fois le modèle Admin migré en base.
- */
+const credentialsSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
@@ -14,9 +17,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Mot de passe", type: "password" },
       },
-      authorize: async () => {
-        // TODO: brancher la vérification réelle (Prisma + bcrypt) à l'étape Dashboard admin.
-        return null;
+      authorize: async (credentials) => {
+        const parsed = credentialsSchema.safeParse(credentials);
+        if (!parsed.success) return null;
+
+        const admin = await prisma.admin.findUnique({
+          where: { email: parsed.data.email },
+        });
+        if (!admin) return null;
+
+        const valid = await bcrypt.compare(parsed.data.password, admin.passwordHash);
+        if (!valid) return null;
+
+        return { id: admin.id, email: admin.email, name: admin.name };
       },
     }),
   ],
