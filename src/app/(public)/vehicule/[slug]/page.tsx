@@ -68,9 +68,34 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
   void incrementVehicleViewCount(repository, vehicle.id);
 
   const negotiable = hasNegotiableBadge(vehicle);
+  const priceValue = typeof vehicle.price === "number" ? vehicle.price : vehicle.price.toNumber();
+  const primaryImageUrl = [...vehicle.images].sort((a, b) => a.position - b.position)[0]?.url;
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: vehicle.title,
+    description: vehicle.description.slice(0, 300),
+    ...(primaryImageUrl && { image: primaryImageUrl }),
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "XOF",
+      price: priceValue,
+      availability:
+        vehicle.status === "DISPONIBLE"
+          ? "https://schema.org/InStock"
+          : "https://schema.org/LimitedAvailability",
+      seller: { "@type": "Organization", name: vehicle.agent?.name ?? "AutoDakar" },
+    },
+  };
   const sortedImages = [...vehicle.images].sort((a, b) => a.position - b.position);
 
   return (
+    <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+    />
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Fil d'ariane */}
       <div className="flex items-center gap-1.5 text-xs text-neutral-400 mb-6">
@@ -176,6 +201,7 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
         </aside>
       </div>
     </div>
+    </>
   );
 }
 

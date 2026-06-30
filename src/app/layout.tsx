@@ -19,9 +19,25 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Auto Dakar — Vente de voitures neuves et d'occasion au Sénégal",
+  title: "AutoDakar — Vente de voitures neuves et d'occasion au Sénégal",
   description:
-    "Auto Dakar, la plateforme premium de vente de voitures neuves et d'occasion au Sénégal.",
+    "AutoDakar, la plateforme premium de vente de voitures neuves et d'occasion au Sénégal.",
+  metadataBase: new URL("https://autodakar.sn"),
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "AutoDakar",
+  url: "https://autodakar.sn",
+  logo: "https://autodakar.sn/logo.png",
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+221-77-000-00-00",
+    contactType: "customer service",
+    areaServed: "SN",
+    availableLanguage: "French",
+  },
 };
 
 export default function RootLayout({
@@ -35,6 +51,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${manrope.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         {children}
       </body>
     </html>
