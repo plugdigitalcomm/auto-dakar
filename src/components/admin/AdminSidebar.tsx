@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Car, CalendarCheck, Users, Star, Flag, LayoutDashboard, LogOut } from "lucide-react";
+import { Car, CalendarCheck, Users, Star, Flag, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +11,6 @@ const NAV_ITEMS = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
   { href: "/admin/vehicules", label: "Véhicules", icon: Car },
   { href: "/admin/reservations", label: "Réservations", icon: CalendarCheck },
-  { href: "/admin/agents", label: "Agents", icon: Users },
   { href: "/admin/avis", label: "Avis", icon: Star },
   { href: "/admin/signalements", label: "Signalements", icon: Flag },
 ];
@@ -21,27 +21,20 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ userName }: AdminSidebarProps) {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
   function isActive(href: string, exact = false) {
     return exact ? pathname === href : pathname.startsWith(href);
   }
 
-  return (
-    <aside className="w-60 shrink-0 bg-neutral-900 border-r border-neutral-800 flex flex-col min-h-screen">
-      {/* Logo */}
-      <div className="px-6 py-5 border-b border-neutral-800">
-        <Link href="/" className="font-display font-bold text-brand-gold text-lg">
-          AutoDakar
-        </Link>
-        <p className="text-xs text-neutral-500 mt-0.5">Administration</p>
-      </div>
-
-      {/* Nav */}
+  const navContent = (
+    <>
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
         {NAV_ITEMS.map(({ href, label, icon: Icon, exact }) => (
           <Link
             key={href}
             href={href}
+            onClick={() => setOpen(false)}
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
               isActive(href, exact)
@@ -55,7 +48,6 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
         ))}
       </nav>
 
-      {/* Footer */}
       <div className="px-3 py-4 border-t border-neutral-800 flex flex-col gap-2">
         <div className="px-3 py-2">
           <p className="text-xs text-neutral-500">Connecté en tant que</p>
@@ -70,6 +62,66 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
           Déconnexion
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* ── Topbar mobile ── */}
+      <div className="lg:hidden fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 h-14 bg-neutral-900 border-b border-neutral-800">
+        <Link href="/" className="font-display font-bold text-brand-gold text-lg">
+          AutoDakar
+        </Link>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="p-2 text-neutral-400 hover:text-white"
+          aria-label="Ouvrir le menu"
+        >
+          <Menu size={22} />
+        </button>
+      </div>
+
+      {/* ── Drawer mobile ── */}
+      {open && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          {/* Overlay */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          />
+          {/* Panel */}
+          <aside className="relative w-64 bg-neutral-900 flex flex-col min-h-screen shadow-xl">
+            <div className="px-6 py-5 border-b border-neutral-800 flex items-center justify-between">
+              <div>
+                <Link href="/" className="font-display font-bold text-brand-gold text-lg">
+                  AutoDakar
+                </Link>
+                <p className="text-xs text-neutral-500 mt-0.5">Administration</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="p-1 text-neutral-400 hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            {navContent}
+          </aside>
+        </div>
+      )}
+
+      {/* ── Sidebar desktop ── */}
+      <aside className="hidden lg:flex w-60 shrink-0 bg-neutral-900 border-r border-neutral-800 flex-col min-h-screen">
+        <div className="px-6 py-5 border-b border-neutral-800">
+          <Link href="/" className="font-display font-bold text-brand-gold text-lg">
+            AutoDakar
+          </Link>
+          <p className="text-xs text-neutral-500 mt-0.5">Administration</p>
+        </div>
+        {navContent}
+      </aside>
+    </>
   );
 }

@@ -16,7 +16,7 @@ export default async function AdminProtectedLayout({
   return (
     <div className="min-h-screen bg-neutral-950 flex">
       <AdminSidebar userName={session.user?.name ?? "Admin"} />
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto pt-14 lg:pt-0">
         {children}
       </main>
     </div>
