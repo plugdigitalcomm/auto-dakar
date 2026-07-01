@@ -120,7 +120,7 @@ export function VehicleForm({ action, brands, agents, vehicle, submitLabel = "En
               name="price"
               type="number"
               required
-              defaultValue={v?.price ? (typeof v.price === "number" ? v.price : v.price.toNumber()) : ""}
+              defaultValue={v?.price ? Number(v.price) : ""}
               className={inputClass}
               placeholder="ex: 12000000"
             />
