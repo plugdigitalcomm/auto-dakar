@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, SlidersHorizontal, ChevronDown } from "lucide-react";
 import type { Brand } from "@/types";
 
 const SENEGAL_CITIES = [
@@ -33,6 +33,7 @@ const FILTER_KEYS = [
 export function CatalogueFilters({ brands }: CatalogueFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [open, setOpen] = useState(false);
 
   const [form, setForm] = useState(() => {
     const initial: Record<string, string> = {};
@@ -52,31 +53,23 @@ export function CatalogueFilters({ brands }: CatalogueFiltersProps) {
       if (form[key]) params.set(key, form[key]);
     }
     router.push(`/catalogue?${params.toString()}`);
+    setOpen(false);
   }
 
   function resetFilters() {
     setForm(Object.fromEntries(FILTER_KEYS.map((k) => [k, ""])));
     router.push("/catalogue");
+    setOpen(false);
   }
+
+  const activeCount = FILTER_KEYS.filter((k) => form[k]).length;
 
   const inputClass =
     "w-full bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2 text-sm text-brand-black outline-none focus:border-brand-gold transition-colors";
   const labelClass = "text-xs font-medium text-neutral-500 mb-1.5 block";
 
-  return (
-    <aside className="flex flex-col gap-5 p-5 rounded-2xl border border-neutral-200 bg-brand-white h-fit">
-      <div className="flex items-center justify-between">
-        <h2 className="font-display font-semibold text-brand-black">Filtres</h2>
-        <button
-          type="button"
-          onClick={resetFilters}
-          className="flex items-center gap-1 text-xs text-neutral-400 hover:text-brand-gold transition-colors"
-        >
-          <RotateCcw size={12} />
-          Réinitialiser
-        </button>
-      </div>
-
+  const filterContent = (
+    <div className="flex flex-col gap-5">
       <div>
         <label className={labelClass}>Marque</label>
         <select className={inputClass} value={form.brandId} onChange={(e) => update("brandId", e.target.value)}>
@@ -139,40 +132,16 @@ export function CatalogueFilters({ brands }: CatalogueFiltersProps) {
       <div>
         <label className={labelClass}>Prix (XOF)</label>
         <div className="flex items-center gap-2">
-          <input
-            type="number"
-            placeholder="Min"
-            className={inputClass}
-            value={form.priceMin}
-            onChange={(e) => update("priceMin", e.target.value)}
-          />
-          <input
-            type="number"
-            placeholder="Max"
-            className={inputClass}
-            value={form.priceMax}
-            onChange={(e) => update("priceMax", e.target.value)}
-          />
+          <input type="number" placeholder="Min" className={inputClass} value={form.priceMin} onChange={(e) => update("priceMin", e.target.value)} />
+          <input type="number" placeholder="Max" className={inputClass} value={form.priceMax} onChange={(e) => update("priceMax", e.target.value)} />
         </div>
       </div>
 
       <div>
         <label className={labelClass}>Année</label>
         <div className="flex items-center gap-2">
-          <input
-            type="number"
-            placeholder="Min"
-            className={inputClass}
-            value={form.yearMin}
-            onChange={(e) => update("yearMin", e.target.value)}
-          />
-          <input
-            type="number"
-            placeholder="Max"
-            className={inputClass}
-            value={form.yearMax}
-            onChange={(e) => update("yearMax", e.target.value)}
-          />
+          <input type="number" placeholder="Min" className={inputClass} value={form.yearMin} onChange={(e) => update("yearMin", e.target.value)} />
+          <input type="number" placeholder="Max" className={inputClass} value={form.yearMax} onChange={(e) => update("yearMax", e.target.value)} />
         </div>
       </div>
 
@@ -183,6 +152,61 @@ export function CatalogueFilters({ brands }: CatalogueFiltersProps) {
       >
         Appliquer les filtres
       </button>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Bouton toggle filtres — mobile uniquement */}
+      <div className="lg:hidden">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-neutral-200 bg-brand-white text-sm font-medium text-brand-black"
+        >
+          <span className="flex items-center gap-2">
+            <SlidersHorizontal size={16} className="text-brand-gold" />
+            Filtres
+            {activeCount > 0 && (
+              <span className="px-1.5 py-0.5 text-xs bg-brand-gold text-brand-black rounded-full font-bold">{activeCount}</span>
+            )}
+          </span>
+          <div className="flex items-center gap-2">
+            {activeCount > 0 && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); resetFilters(); }}
+                className="text-xs text-neutral-400 hover:text-brand-gold flex items-center gap-1"
+              >
+                <RotateCcw size={11} /> Réinitialiser
+              </button>
+            )}
+            <ChevronDown size={16} className={`transition-transform ${open ? "rotate-180" : ""}`} />
+          </div>
+        </button>
+
+        {open && (
+          <div className="mt-3 p-4 rounded-xl border border-neutral-200 bg-brand-white">
+            {filterContent}
+          </div>
+        )}
+      </div>
+
+      {/* Sidebar desktop */}
+      <aside className="hidden lg:flex flex-col gap-5 p-5 rounded-2xl border border-neutral-200 bg-brand-white h-fit sticky top-24">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display font-semibold text-brand-black">Filtres</h2>
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="flex items-center gap-1 text-xs text-neutral-400 hover:text-brand-gold transition-colors"
+          >
+            <RotateCcw size={12} />
+            Réinitialiser
+          </button>
+        </div>
+        {filterContent}
+      </aside>
+    </>
   );
 }
