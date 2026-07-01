@@ -1,25 +1,12 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { PrismaVehicleRepository } from "@/modules/vehicles/infrastructure";
-import { deleteVehicleAction, updateVehicleStatusAction } from "./actions";
+import { VehicleStatusSelect } from "@/components/admin/VehicleStatusSelect";
+import { VehicleDeleteButton } from "@/components/admin/VehicleDeleteButton";
 
 const repository = new PrismaVehicleRepository();
-
-const STATUS_LABELS: Record<string, string> = {
-  DISPONIBLE: "Disponible",
-  RESERVE: "Réservé",
-  VENDU: "Vendu",
-  ARCHIVE: "Archivé",
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  DISPONIBLE: "bg-green-500/10 text-green-400",
-  RESERVE: "bg-yellow-500/10 text-yellow-400",
-  VENDU: "bg-blue-500/10 text-blue-400",
-  ARCHIVE: "bg-neutral-700 text-neutral-400",
-};
-
-const STATUS_OPTIONS = ["DISPONIBLE", "RESERVE", "VENDU", "ARCHIVE"] as const;
 
 interface PageProps {
   searchParams: Promise<{ page?: string }>;
@@ -60,6 +47,11 @@ export default async function AdminVehiculesPage({ searchParams }: PageProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-800">
+            {items.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-4 py-8 text-center text-neutral-500">Aucun véhicule</td>
+              </tr>
+            )}
             {items.map((vehicle) => (
               <tr key={vehicle.id} className="bg-neutral-900 hover:bg-neutral-800/50 transition-colors">
                 <td className="px-4 py-3">
@@ -73,18 +65,7 @@ export default async function AdminVehiculesPage({ searchParams }: PageProps) {
                   )}
                 </td>
                 <td className="px-4 py-3">
-                  <form action={async (fd) => { "use server"; await updateVehicleStatusAction(vehicle.id, fd.get("status") as string); }}>
-                    <select
-                      name="status"
-                      defaultValue={vehicle.status}
-                      onChange={(e) => (e.target.form as HTMLFormElement).requestSubmit()}
-                      className={`text-xs font-medium px-2 py-1 rounded-md border-0 outline-none cursor-pointer bg-transparent ${STATUS_COLORS[vehicle.status]}`}
-                    >
-                      {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s} className="bg-neutral-800 text-white">{STATUS_LABELS[s]}</option>
-                      ))}
-                    </select>
-                  </form>
+                  <VehicleStatusSelect id={vehicle.id} current={vehicle.status} />
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-2">
@@ -95,15 +76,7 @@ export default async function AdminVehiculesPage({ searchParams }: PageProps) {
                       <Pencil size={12} />
                       Modifier
                     </Link>
-                    <form action={async () => { "use server"; await deleteVehicleAction(vehicle.id); }}>
-                      <button
-                        type="submit"
-                        className="px-3 py-1.5 rounded-lg bg-neutral-800 text-red-400 hover:bg-red-500/10 text-xs transition-colors"
-                        onClick={(e) => { if (!confirm("Supprimer ce véhicule ?")) e.preventDefault(); }}
-                      >
-                        Supprimer
-                      </button>
-                    </form>
+                    <VehicleDeleteButton id={vehicle.id} />
                   </div>
                 </td>
               </tr>
@@ -112,7 +85,6 @@ export default async function AdminVehiculesPage({ searchParams }: PageProps) {
         </table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
