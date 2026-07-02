@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Car, CalendarCheck, Users, Star, Flag, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
+import { Car, CalendarCheck, Users, Star, Flag, LayoutDashboard, LogOut, Menu, X, Tag } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
   { href: "/admin/vehicules", label: "Véhicules", icon: Car },
+  { href: "/admin/annonces", label: "Annonces vendeurs", icon: Tag },
   { href: "/admin/reservations", label: "Réservations", icon: CalendarCheck },
   { href: "/admin/avis", label: "Avis", icon: Star },
   { href: "/admin/signalements", label: "Signalements", icon: Flag },

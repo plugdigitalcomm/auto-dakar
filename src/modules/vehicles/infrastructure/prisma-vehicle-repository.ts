@@ -15,6 +15,7 @@ const DEFAULT_PAGE_SIZE = 12;
 function buildSearchWhere(filters: VehicleSearchFilters): Prisma.VehicleWhereInput {
   return {
     status: { in: [...PUBLICLY_VISIBLE_STATUSES] },
+    moderationStatus: "PUBLIE",
     brandId: filters.brandId,
     model: filters.model ? { contains: filters.model, mode: "insensitive" } : undefined,
     city: filters.city ? { equals: filters.city, mode: "insensitive" } : undefined,
@@ -38,7 +39,7 @@ function buildSearchWhere(filters: VehicleSearchFilters): Prisma.VehicleWhereInp
 export class PrismaVehicleRepository implements VehicleRepository {
   async findManyPublished(limit = DEFAULT_PAGE_SIZE): Promise<VehicleWithRelations[]> {
     return prisma.vehicle.findMany({
-      where: { status: { in: [...PUBLICLY_VISIBLE_STATUSES] } },
+      where: { status: { in: [...PUBLICLY_VISIBLE_STATUSES] }, moderationStatus: "PUBLIE" },
       include: VEHICLE_INCLUDE,
       orderBy: { createdAt: "desc" },
       take: limit,
@@ -47,7 +48,7 @@ export class PrismaVehicleRepository implements VehicleRepository {
 
   async findBySlug(slug: string): Promise<VehicleWithRelations | null> {
     return prisma.vehicle.findFirst({
-      where: { slug, status: { in: [...PUBLICLY_VISIBLE_STATUSES] } },
+      where: { slug, status: { in: [...PUBLICLY_VISIBLE_STATUSES] }, moderationStatus: "PUBLIE" },
       include: VEHICLE_INCLUDE,
     });
   }

@@ -36,3 +36,36 @@ export async function uploadVehicleImages(formData: FormData): Promise<string[]>
   if (validFiles.length === 0) return [];
   return Promise.all(validFiles.map((f) => uploadImageToCloudinary(f)));
 }
+
+/**
+ * Upload public (formulaire « Vendre ma voiture ») — sans session admin.
+ * Limité en nombre de fichiers pour éviter les abus.
+ */
+export async function uploadSellerImages(formData: FormData): Promise<string[]> {
+  const files = (formData.getAll("imageFiles") as File[])
+    .filter((f) => f instanceof File && f.size > 0)
+    .slice(0, 12);
+  if (files.length === 0) return [];
+
+  return Promise.all(
+    files.map(async (file) => {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      return new Promise<string>((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "autodakar/annonces",
+            resource_type: "image",
+            transformation: [
+              { width: 1200, height: 900, crop: "limit", quality: "auto:good", fetch_format: "auto" },
+            ],
+          },
+          (error, result) => {
+            if (error || !result) return reject(error ?? new Error("Upload échoué"));
+            resolve(result.secure_url);
+          }
+        );
+        stream.end(buffer);
+      });
+    })
+  );
+}
