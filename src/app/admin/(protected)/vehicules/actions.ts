@@ -52,7 +52,12 @@ export async function createVehicleAction(_prev: { error?: string } | undefined,
   const slug = `${slugify(d.title)}-${d.city.toLowerCase().replace(/\s+/g, "-")}`;
 
   // Upload des fichiers vers Cloudinary (s'il y en a), puis fusion avec URLs manuelles
-  const uploadedUrls = await uploadVehicleImages(formData).catch(() => [] as string[]);
+  let uploadedUrls: string[] = [];
+  try {
+    uploadedUrls = await uploadVehicleImages(formData);
+  } catch {
+    return { error: "L'envoi des photos a échoué. Vérifiez que les clés Cloudinary sont configurées." };
+  }
   const manualUrls = (raw.imageUrls as string ?? "").split("\n").map((u) => u.trim()).filter(Boolean);
   const imagesRaw = [...uploadedUrls, ...manualUrls];
 

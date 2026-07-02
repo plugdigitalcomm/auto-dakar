@@ -49,7 +49,12 @@ export async function createSellerListingAction(
   const brand = await prisma.brand.findUnique({ where: { id: d.brandId } });
   if (!brand) return { error: "Marque invalide." };
 
-  const uploadedUrls = await uploadSellerImages(formData).catch(() => [] as string[]);
+  let uploadedUrls: string[] = [];
+  try {
+    uploadedUrls = await uploadSellerImages(formData);
+  } catch {
+    return { error: "L'envoi des photos a échoué. Réessayez ou contactez le support." };
+  }
 
   const paymentPending = isPaytechEnabled();
   const slug = `${slugify(d.title)}-${d.city.toLowerCase().replace(/\s+/g, "-")}-${randomUUID().slice(0, 6)}`;
