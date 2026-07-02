@@ -18,7 +18,7 @@ export const vehicleStatusSchema = z.enum(["DISPONIBLE", "RESERVE", "VENDU", "AR
 /** Création/édition d'un véhicule depuis le dashboard admin. */
 export const vehicleInputSchema = z.object({
   title: z.string().trim().min(3).max(120),
-  brandId: z.string().cuid(),
+  brandId: z.string().min(1),
   model: z.string().trim().min(1).max(60),
   year: z.coerce.number().int().min(1980).max(new Date().getFullYear() + 1),
   condition: vehicleConditionSchema,
@@ -40,8 +40,8 @@ export const vehicleInputSchema = z.object({
   latitude: z.coerce.number().min(-90).max(90).optional(),
   longitude: z.coerce.number().min(-180).max(180).optional(),
   status: vehicleStatusSchema.default("DISPONIBLE"),
-  agentId: z.string().cuid().optional(),
-  videoUrl: z.url().optional(),
+  agentId: z.string().min(1).optional(),
+  videoUrl: z.string().url().optional(),
 });
 
 export type VehicleInput = z.infer<typeof vehicleInputSchema>;
