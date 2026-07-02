@@ -37,7 +37,10 @@ export async function createSellerListingAction(
   });
 
   if (!parsed.success) {
-    return { error: "Données invalides : " + parsed.error.issues.map((i) => i.message).join(", ") };
+    const details = parsed.error.issues
+      .map((i) => `${i.path.join(".") || "champ"} (${i.message})`)
+      .join(", ");
+    return { error: "Données invalides : " + details };
   }
 
   const d = parsed.data;
