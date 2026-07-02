@@ -10,6 +10,7 @@ const BRANDS = [
   { name: "Kia", slug: "kia" },
   { name: "Peugeot", slug: "peugeot" },
   { name: "Land Rover", slug: "land-rover" },
+  { name: "BMW", slug: "bmw" },
 ] as const;
 
 async function seedAdmin() {
@@ -66,6 +67,7 @@ async function seedVehicles() {
   const toyota = await prisma.brand.findUniqueOrThrow({ where: { slug: "toyota" } });
   const mercedes = await prisma.brand.findUniqueOrThrow({ where: { slug: "mercedes-benz" } });
   const hyundai = await prisma.brand.findUniqueOrThrow({ where: { slug: "hyundai" } });
+  const bmw = await prisma.brand.findUniqueOrThrow({ where: { slug: "bmw" } });
   const medina = await prisma.agent.findUniqueOrThrow({ where: { slug: "garage-medina-auto" } });
 
   const existing = await prisma.vehicle.findUnique({ where: { slug: "toyota-rav4-2022-dakar" } });
@@ -159,6 +161,168 @@ async function seedVehicles() {
       },
     },
   });
+
+  // ── Véhicules premium ajoutés ──
+
+  const cle53Exists = await prisma.vehicle.findUnique({ where: { slug: "mercedes-cle53-amg-2024-dakar" } });
+  if (!cle53Exists) {
+    await prisma.vehicle.create({
+      data: {
+        slug: "mercedes-cle53-amg-2024-dakar",
+        title: "Mercedes-Benz CLE 53 AMG 2024",
+        brandId: mercedes.id,
+        model: "CLE 53 AMG",
+        year: 2024,
+        condition: "NEUF",
+        category: "COUPE",
+        price: 85000000,
+        isNegotiable: true,
+        mileage: 0,
+        fuelType: "ESSENCE",
+        transmission: "AUTOMATIQUE",
+        color: "Noir mat",
+        power: 449,
+        engineSize: 3.0,
+        seats: 4,
+        hasAC: true,
+        hasGPS: true,
+        hasRearCamera: true,
+        description: "Mercedes-Benz CLE 53 AMG en finition noir mat saisissante. Moteur 6 cylindres en ligne biturbo de 449 ch, transmission 4MATIC+, 0 à 100 km/h en 3,9 secondes. Intérieur sport AMG, sièges baquet cuir Nappa, système multimédia MBUX dernière génération. Un coupé de prestige rare et exclusif.",
+        city: "Dakar",
+        status: "DISPONIBLE",
+        agentId: medina.id,
+        images: { create: [] },
+      },
+    });
+  }
+
+  const gleCoupe1Exists = await prisma.vehicle.findUnique({ where: { slug: "mercedes-gle-coupe-2023-dakar" } });
+  if (!gleCoupe1Exists) {
+    await prisma.vehicle.create({
+      data: {
+        slug: "mercedes-gle-coupe-2023-dakar",
+        title: "Mercedes-Benz GLE Coupé 2023",
+        brandId: mercedes.id,
+        model: "GLE Coupé",
+        year: 2023,
+        condition: "OCCASION",
+        category: "SUV",
+        price: 62000000,
+        isNegotiable: true,
+        mileage: 18000,
+        fuelType: "DIESEL",
+        transmission: "AUTOMATIQUE",
+        color: "Gris selenite",
+        power: 330,
+        engineSize: 3.0,
+        seats: 5,
+        hasAC: true,
+        hasGPS: true,
+        hasRearCamera: true,
+        description: "Mercedes-Benz GLE Coupé en gris sélénitite, look sport AMG Line. Motorisation diesel 330 ch, boîte 9G-TRONIC, 4MATIC. Toit ouvrant panoramique, jantes AMG 22 pouces, intérieur cuir beige. Première main, carnet d'entretien à jour.",
+        city: "Dakar",
+        status: "DISPONIBLE",
+        agentId: medina.id,
+        images: { create: [] },
+      },
+    });
+  }
+
+  const glc63Exists = await prisma.vehicle.findUnique({ where: { slug: "mercedes-glc63s-amg-2024-dakar" } });
+  if (!glc63Exists) {
+    await prisma.vehicle.create({
+      data: {
+        slug: "mercedes-glc63s-amg-2024-dakar",
+        title: "Mercedes-Benz GLC 63 S AMG 2024",
+        brandId: mercedes.id,
+        model: "GLC 63 S AMG",
+        year: 2024,
+        condition: "NEUF",
+        category: "SUV",
+        price: 95000000,
+        isNegotiable: false,
+        mileage: 0,
+        fuelType: "HYBRIDE",
+        transmission: "AUTOMATIQUE",
+        color: "Blanc polaire",
+        power: 680,
+        engineSize: 2.0,
+        seats: 5,
+        hasAC: true,
+        hasGPS: true,
+        hasRearCamera: true,
+        description: "Mercedes-AMG GLC 63 S E Performance 2024, la référence des SUV haute performance. 680 ch combinés (hybride rechargeable), 0 à 100 km/h en 3,5 secondes. Pack Aéro AMG, diffuseur carbone, freins Céramique. Un SUV de compétition habillé pour la ville.",
+        city: "Dakar",
+        status: "DISPONIBLE",
+        agentId: medina.id,
+        images: { create: [] },
+      },
+    });
+  }
+
+  const gle53Exists = await prisma.vehicle.findUnique({ where: { slug: "mercedes-gle53-amg-2023-dakar" } });
+  if (!gle53Exists) {
+    await prisma.vehicle.create({
+      data: {
+        slug: "mercedes-gle53-amg-2023-dakar",
+        title: "Mercedes-Benz GLE 53 AMG 2023",
+        brandId: mercedes.id,
+        model: "GLE 53 AMG",
+        year: 2023,
+        condition: "OCCASION",
+        category: "SUV",
+        price: 72000000,
+        isNegotiable: true,
+        mileage: 12000,
+        fuelType: "ESSENCE",
+        transmission: "AUTOMATIQUE",
+        color: "Noir obsidien",
+        power: 435,
+        engineSize: 3.0,
+        seats: 5,
+        hasAC: true,
+        hasGPS: true,
+        hasRearCamera: true,
+        description: "Mercedes-AMG GLE 53 4MATIC+ en noir obsidien brillant, aspect full black absolu. Suspension pilotée E-ACTIVE BODY CONTROL, jantes AMG 22\" noir mat, pack Night. Intérieur AMG Performance cuir Nappa bicolore. Un SUV au caractère unique, quasi neuf.",
+        city: "Dakar",
+        status: "DISPONIBLE",
+        agentId: medina.id,
+        images: { create: [] },
+      },
+    });
+  }
+
+  const bmwXmExists = await prisma.vehicle.findUnique({ where: { slug: "bmw-xm-2024-dakar" } });
+  if (!bmwXmExists) {
+    await prisma.vehicle.create({
+      data: {
+        slug: "bmw-xm-2024-dakar",
+        title: "BMW XM 2024",
+        brandId: bmw.id,
+        model: "XM",
+        year: 2024,
+        condition: "NEUF",
+        category: "SUV",
+        price: 110000000,
+        isNegotiable: false,
+        mileage: 0,
+        fuelType: "HYBRIDE",
+        transmission: "AUTOMATIQUE",
+        color: "Noir saphir",
+        power: 653,
+        engineSize: 4.4,
+        seats: 5,
+        hasAC: true,
+        hasGPS: true,
+        hasRearCamera: true,
+        description: "BMW XM 2024, le SUV M le plus puissant jamais produit. Hybride rechargeable V8 4.4L biturbo + moteur électrique pour 653 ch. Design exclusif full black, jantes forgées 23\", intérieur Merino cuir de luxe avec ambient light 5 zones. La définition du SUV de prestige ultime.",
+        city: "Dakar",
+        status: "DISPONIBLE",
+        agentId: medina.id,
+        images: { create: [] },
+      },
+    });
+  }
 }
 
 async function main() {
